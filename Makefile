@@ -1,2 +1,7 @@
 all:
-	gcc -Wall -Werror -Wextra -o math main.c math.c
+	gcc -c calc.c
+	ar rc calc.a calc.o
+	rm calc.o
+
+clean:
+	rm calc.a
