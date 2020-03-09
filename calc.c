@@ -2,13 +2,44 @@
 // write brac location
 
 #include "calc.h"
+#include <stdio.h>
 
 // a function to evaluate a mathematical string and return the interger answer
 int     calc(char *math_str)
 {
-    while(symbol_check(math_str))
+    if(sanitize(math_str) == 1)
+        return(0);
+    while(symbol_check(math_str) == 1)
+    {
+        printf("ok\n");
         opperation_order(&math_str);
+    }
     return(ft_atoi(math_str));
+}
+
+int     sanitize(char *math_str)
+{
+    int i = 0;
+    int open = 0;
+    int close = 0;
+    while(math_str[i])
+    {
+        if(math_str[i] == '(')
+            open++;
+        if(math_str[i] == ')')
+            close++;
+        i++;
+    }
+    if(open != close)
+        return(1);
+    i = 0;
+    while(math_str[i] && ((math_str[i] <= '9' && math_str[i] >= '0') || math_str[i] == '('\
+        || math_str[i] == ')' || math_str[i] == ' ' || math_str[i] == '\t' || math_str[i] == '+'\
+        || math_str[i] == '-' || math_str[i] == '*' || math_str[i] == '/'))
+        i++;
+    if(math_str[i])
+        return(1);
+    return(0);
 }
 
 // returns 0 if only numeric characters are found in array math_str else 1 if any non_numeric characters are found
@@ -251,15 +282,6 @@ int		ft_atoi(const char *str)
 	}
 	return (sign * res);
 }
-
-
-
-
-
-
-
-
-
 
 // interger to ascii converter
 static int		size(int n)
