@@ -1,5 +1,6 @@
 // at some point add exponant and root functionality and then perhaps algebra
 // make it work with floats
+// perhaps use recursion to fix bodmas in brackets by recursivley calling opperation_order in opperate inside of brackets
 
 #include "libft/libft.h"
 #include "calc.h"
@@ -10,13 +11,116 @@ int     calc(char *math_str)
 {
     if(sanitize(&math_str) == 1)
         return(0);
-    printf("__cleaned string__\n%s\n\n__opperation procedures__\n", math_str);
     while(symbol_check(math_str) == 1)
     {
         opperation_order(&math_str);
-        printf("math_str__:%s\n\n", math_str);
+        printf("%s\n", math_str);
     }
     return(ft_atoi(math_str));
+}
+
+// processes and returns the next opperation in the order of operations
+void    opperation_order(char **math_str)
+{
+    if(bracket_check(*math_str))
+        opperate(brac_location(*math_str), math_str);
+    else if(div_mult_check(*math_str))
+        opperate(div_mult_location(*math_str), math_str);
+    else if(add_sub_check(*math_str))
+        opperate(add_sub_location(*math_str), math_str);
+    brac_chop(math_str);
+}
+
+// the core maths calculations
+void    opperate(int index, char **math_str)
+{
+    int i_index = index;
+    char *re_assign = (char *)malloc(1024);
+    int p = 0;
+    int num1 = num_extract(*math_str, index);
+    int num2;
+    int i = index;
+    while((*math_str)[i])
+        i++;
+    char *after_opp = (char *)malloc(i - index + 2);
+    i = index;
+    while((*math_str)[i] && (*math_str)[i] >= '0' && (*math_str)[i] <= '9')
+        i++;
+    while((*math_str)[i] && (((*math_str)[i] > 0 && (*math_str)[i] < '0') || ((*math_str)[i] > '9')))
+        i++;
+    num2 = num_extract(*math_str, i);
+    while((*math_str)[index] && ((*math_str)[index] != '*' && (*math_str)[index] != '/' && (*math_str)[index] != '+' && (*math_str)[index] != '-'))
+        index++;
+    // addition calculation
+    if((*math_str)[index] == '+')
+    {
+        // printf("add_call\n");
+        index = i_index;
+        while((*math_str)[i] && ((*math_str)[i] >= '0' && (*math_str)[i] <= '9'))
+            i++;
+        while((*math_str)[i])
+            after_opp[p++] = (*math_str)[i++];
+        after_opp[p] = '\0';
+        re_assign = ft_itoa(num1 + num2);
+        p = 0;
+        while(re_assign[p])
+            (*math_str)[index++] = re_assign[p++];
+        p = 0;
+        while(after_opp[p])
+            (*math_str)[index++] = after_opp[p++];
+        (*math_str)[index] = '\0';
+    }
+    // subtraction calculation
+    else if((*math_str)[index] == '-')
+    {
+        index = i_index;
+        while((*math_str)[i] && ((*math_str)[i] >= '0' && (*math_str)[i] <= '9'))
+            i++;
+        while((*math_str)[i])
+            after_opp[p++] = (*math_str)[i++];
+        re_assign = ft_itoa(num1 - num2);
+        p = 0;
+        while(re_assign[p])
+            (*math_str)[index++] = re_assign[p++];
+        p = 0;
+        while(after_opp[p])
+            (*math_str)[index++] = after_opp[p++];
+        (*math_str)[index] = '\0';
+    }
+    //multiplication calculation
+    else if((*math_str)[index] == '*')
+    {
+        index = i_index;
+        while((*math_str)[i] && ((*math_str)[i] >= '0' && (*math_str)[i] <= '9'))
+            i++;
+        while((*math_str)[i])
+            after_opp[p++] = (*math_str)[i++];
+        re_assign = ft_itoa(num1 * num2);
+        p = 0;
+        while(re_assign[p])
+            (*math_str)[index++] = re_assign[p++];
+        p = 0;
+        while(after_opp[p])
+            (*math_str)[index++] = after_opp[p++];
+        (*math_str)[index] = '\0';
+    }
+    // division calculation
+    else if((*math_str)[index] == '/')
+    {
+        index = i_index;
+        while((*math_str)[i] && ((*math_str)[i] >= '0' && (*math_str)[i] <= '9'))
+            i++;
+        while((*math_str)[i])
+            after_opp[p++] = (*math_str)[i++];
+        re_assign = ft_itoa(num1 / num2);
+        p = 0;
+        while(re_assign[p])
+            (*math_str)[index++] = re_assign[p++];
+        p = 0;
+        while(after_opp[p])
+            (*math_str)[index++] = after_opp[p++];
+        (*math_str)[index] = '\0';
+    }
 }
 
 int     sanitize(char **math_str)
@@ -25,6 +129,7 @@ int     sanitize(char **math_str)
     int open = 0;
     int close = 0;
     *math_str = ft_strtrim(*math_str);
+    // ensures the right amount of brackets
     while((*math_str)[i])
     {
         if((*math_str)[i] == '(')
@@ -36,6 +141,7 @@ int     sanitize(char **math_str)
     if(open != close)
         return(1);
     i = 0;
+    // checks for dodgy characters
     while((*math_str)[i] && (((*math_str)[i] <= '9' && (*math_str)[i] >= '0') || (*math_str)[i] == '('\
         || (*math_str)[i] == ')' || (*math_str)[i] == ' ' || (*math_str)[i] == '\t' || (*math_str)[i] == '+'\
         || (*math_str)[i] == '-' || (*math_str)[i] == '*' || (*math_str)[i] == '/'))
@@ -43,6 +149,7 @@ int     sanitize(char **math_str)
     if((*math_str)[i])
         return(1);
     i = 0;
+    // removes all space characters
     while((*math_str)[i])
     {
         if((*math_str)[i] == ' ' || (*math_str)[i] == '\t')
@@ -74,6 +181,7 @@ int     symbol_check(char *math_str)
         return(0);
 }
 
+// removes all brackets that only contain a single number
 void    brac_chop(char **math_str)
 {
     int i = 0;
@@ -110,130 +218,7 @@ void    brac_chop(char **math_str)
     }
 }
 
-// processes and returns the next opperation in the order of operations
-void    opperation_order(char **math_str)
-{
-    if(bracket_check(*math_str))
-    {
-        printf("bracket calc\n");
-        opperate(brac_location(*math_str), math_str);
-    }
-    else if(div_mult_check(*math_str))
-    {
-        printf("div_mult calc\n");
-        opperate(div_mult_location(*math_str), math_str);
-    }
-    else if(add_sub_check(*math_str))
-    {
-        printf("add_sub calc\n");
-        opperate(add_sub_location(*math_str), math_str);
-    }
-    brac_chop(math_str);
-}
-
-// the core maths calculations
-void    opperate(int index, char **math_str)
-{
-    int i_index = index;
-    char *re_assign = (char *)malloc(1024);
-    int p = 0;
-    int num1 = num_extract(*math_str, index);
-    int num2;
-    int i = index;
-    while((*math_str)[i])
-        i++;
-    char *after_opp = (char *)malloc(i - index + 2);
-    i = index;
-    while((*math_str)[i] && (*math_str)[i] >= '0' && (*math_str)[i] <= '9')
-        i++;
-    while((*math_str)[i] && (((*math_str)[i] > 0 && (*math_str)[i] < '0') || ((*math_str)[i] > '9')))
-        i++;
-    num2 = num_extract(*math_str, i);
-    while((*math_str)[index] && ((*math_str)[index] != '*' && (*math_str)[index] != '/' && (*math_str)[index] != '+' && (*math_str)[index] != '-'))
-        index++;
-    // printf("i__:%d     %c\n", i, (*math_str)[i]);
-    // printf("i_index__: %d\n", i_index);
-    // printf("num1__:%d\n", num1);
-    // printf("num2__:%d\n", num2);
-    // printf("math_str__:%s\n", (*math_str));
-    // addition calculation
-    if((*math_str)[index] == '+')
-    {
-        printf("add_call\n");
-
-        index = i_index;
-        while((*math_str)[i] && ((*math_str)[i] >= '0' && (*math_str)[i] <= '9'))
-            i++;
-        while((*math_str)[i])
-            after_opp[p++] = (*math_str)[i++];
-        after_opp[p] = '\0';
-        re_assign = ft_itoa(num1 + num2);
-        // printf("re_assign__:%s\n", re_assign);
-        // printf("after_opp__:%s\n", after_opp);
-        p = 0;
-        while(re_assign[p])
-            (*math_str)[index++] = re_assign[p++];
-        p = 0;
-        while(after_opp[p])
-            (*math_str)[index++] = after_opp[p++];
-        (*math_str)[index] = '\0';
-    }
-    // subtraction calculation
-    else if((*math_str)[index] == '-')
-    {
-        printf("sub_call\n");
-        index = i_index;
-        while((*math_str)[i] && ((*math_str)[i] >= '0' && (*math_str)[i] <= '9'))
-            i++;
-        while((*math_str)[i])
-            after_opp[p++] = (*math_str)[i++];
-        re_assign = ft_itoa(num1 - num2);
-        p = 0;
-        while(re_assign[p])
-            (*math_str)[index++] = re_assign[p++];
-        p = 0;
-        while(after_opp[p])
-            (*math_str)[index++] = after_opp[p++];
-        (*math_str)[index] = '\0';
-    }
-    //multiplication calculation
-    else if((*math_str)[index] == '*')
-    {
-        printf("mult_call\n");
-        index = i_index;
-        while((*math_str)[i] && ((*math_str)[i] >= '0' && (*math_str)[i] <= '9'))
-            i++;
-        while((*math_str)[i])
-            after_opp[p++] = (*math_str)[i++];
-        re_assign = ft_itoa(num1 * num2);
-        p = 0;
-        while(re_assign[p])
-            (*math_str)[index++] = re_assign[p++];
-        p = 0;
-        while(after_opp[p])
-            (*math_str)[index++] = after_opp[p++];
-        (*math_str)[index] = '\0';
-    }
-    // division calculation
-    else if((*math_str)[index] == '/')
-    {
-        printf("div_call\n");
-        index = i_index;
-        while((*math_str)[i] && ((*math_str)[i] >= '0' && (*math_str)[i] <= '9'))
-            i++;
-        while((*math_str)[i])
-            after_opp[p++] = (*math_str)[i++];
-        re_assign = ft_itoa(num1 / num2);
-        p = 0;
-        while(re_assign[p])
-            (*math_str)[index++] = re_assign[p++];
-        p = 0;
-        while(after_opp[p])
-            (*math_str)[index++] = after_opp[p++];
-        (*math_str)[index] = '\0';
-    }
-}
-
+// takes the index value of the first character of a number in a string and returns the number as an int
 int     num_extract(char *math_str, int index)
 {
     char *str;
@@ -338,7 +323,7 @@ int     bracket_check(char *math_str)
     int i = 0;
     while(math_str[i])
     {
-        if(math_str[i] == '(' || math_str[i] == ')')
+        if(math_str[i] == '(')
         {
             return(1);
         }
