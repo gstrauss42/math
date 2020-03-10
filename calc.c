@@ -1,4 +1,5 @@
 // at some point add exponant and root functionality and then perhaps algebra
+// make it work with floats
 
 #include "libft/libft.h"
 #include "calc.h"
@@ -13,7 +14,7 @@ int     calc(char *math_str)
     while(symbol_check(math_str) == 1)
     {
         opperation_order(&math_str);
-        printf("                     step__:%s\n", math_str);
+        printf("math_str__:%s\n\n", math_str);
     }
     return(ft_atoi(math_str));
 }
@@ -150,11 +151,11 @@ void    opperate(int index, char **math_str)
     num2 = num_extract(*math_str, i);
     while((*math_str)[index] && ((*math_str)[index] != '*' && (*math_str)[index] != '/' && (*math_str)[index] != '+' && (*math_str)[index] != '-'))
         index++;
-    printf("i__:%d     %c\n", i, (*math_str)[i]);
-    printf("i_index__: %d\n", i_index);
-    printf("num1__:%d\n", num1);
-    printf("num2__:%d\n", num2);
-    printf("math_str__:%s\n", (*math_str));
+    // printf("i__:%d     %c\n", i, (*math_str)[i]);
+    // printf("i_index__: %d\n", i_index);
+    // printf("num1__:%d\n", num1);
+    // printf("num2__:%d\n", num2);
+    // printf("math_str__:%s\n", (*math_str));
     // addition calculation
     if((*math_str)[index] == '+')
     {
@@ -167,8 +168,8 @@ void    opperate(int index, char **math_str)
             after_opp[p++] = (*math_str)[i++];
         after_opp[p] = '\0';
         re_assign = ft_itoa(num1 + num2);
-        printf("re_assign__:%s\n", re_assign);
-        printf("after_opp__:%s\n", after_opp);
+        // printf("re_assign__:%s\n", re_assign);
+        // printf("after_opp__:%s\n", after_opp);
         p = 0;
         while(re_assign[p])
             (*math_str)[index++] = re_assign[p++];
