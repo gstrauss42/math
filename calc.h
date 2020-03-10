@@ -16,6 +16,6 @@ char    *ft_itoa(int n);
 void    opperate(int index, char **math_str);
 int     num_extract(char *math_str, int index);
 int     calc(char *math_str);
-int     sanitize(char *math_str);
+int     sanitize(char **math_str);
 
 #endif
