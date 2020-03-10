@@ -1,5 +1,4 @@
 // at some point add exponant and root functionality and then perhaps algebra
-// write brac location
 
 #include "calc.h"
 #include <stdio.h>
@@ -10,10 +9,7 @@ int     calc(char *math_str)
     if(sanitize(math_str) == 1)
         return(0);
     while(symbol_check(math_str) == 1)
-    {
-        printf("ok\n");
         opperation_order(&math_str);
-    }
     return(ft_atoi(math_str));
 }
 
@@ -65,10 +61,10 @@ void    opperation_order(char **math_str)
         opperate(add_sub_location(*math_str), math_str);
 }
 
-// make it work with memory adresses all math_str indexes are currently working as if its a 1D array
 // the core maths calculations
 void    opperate(int index, char **math_str)
 {
+    int i_index = index;
     char *re_assign = (char *)malloc(1024);
     int p = 0;
     int num1 = num_extract(*math_str, index);
@@ -76,20 +72,22 @@ void    opperate(int index, char **math_str)
     int i = index;
     while((*math_str)[i])
         i++;
-    char *after_opp = (char *)malloc(i - index + 1);
+    char *after_opp = (char *)malloc(i - index + 2);
     i = index;
     while((*math_str)[i] && (*math_str)[i] >= '0' && (*math_str)[i] <= '9')
         i++;
-    while((*math_str)[i] && (*math_str)[i] >= '9' && (*math_str)[i] <= '0')
+    while((*math_str)[i] && (((*math_str)[i] > 0 && (*math_str)[i] < '0') || ((*math_str)[i] > '9')))
         i++;
     num2 = num_extract(*math_str, i);
-    while((*math_str)[index] != '*' || (*math_str)[index] != '/' || (*math_str)[index] != '+' || (*math_str)[index] != '-')
+    while((*math_str)[index] && ((*math_str)[index] != '*' && (*math_str)[index] != '/' && (*math_str)[index] != '+' && (*math_str)[index] != '-'))
         index++;
     // addition calculation
     if((*math_str)[index] == '+')
     {
-        while((*math_str)[i])
+        index = i_index;
+        while((*math_str)[i + 1])
             after_opp[p++] = (*math_str)[i++];
+        after_opp[p] = '\0';
         re_assign = ft_itoa(num1 + num2);
         p = 0;
         while(re_assign[p])
@@ -97,12 +95,13 @@ void    opperate(int index, char **math_str)
         p = 0;
         while(after_opp[p])
             (*math_str)[index++] = after_opp[p++];
-        (*math_str[index]) = '\0';
+        (*math_str)[index] = '\0';
     }
-    // minus calculation
+    // subtraction calculation
     else if((*math_str)[index] == '-')
     {
-        while((*math_str)[i])
+        index = i_index;
+        while((*math_str)[i + 1])
             after_opp[p++] = (*math_str)[i++];
         re_assign = ft_itoa(num1 - num2);
         p = 0;
@@ -116,7 +115,8 @@ void    opperate(int index, char **math_str)
     //multiplication calculation
     else if((*math_str)[index] == '*')
     {
-        while((*math_str)[i])
+        index = i_index;
+        while((*math_str)[i + 1])
             after_opp[p++] = (*math_str)[i++];
         re_assign = ft_itoa(num1 * num2);
         p = 0;
@@ -130,7 +130,8 @@ void    opperate(int index, char **math_str)
     // division calculation
     else if((*math_str)[index] == '/')
     {
-        while((*math_str)[i])
+        index = i_index;
+        while((*math_str)[i + 1])
             after_opp[p++] = (*math_str)[i++];
         re_assign = ft_itoa(num1 / num2);
         p = 0;
@@ -147,12 +148,12 @@ int     num_extract(char *math_str, int index)
 {
     char *str;
     int i = index;
-    while(math_str[i + 1] && math_str[i] >= '0' && math_str[i] <= '9')
+    while(math_str[i] && math_str[i] >= '0' && math_str[i] <= '9')
         i++;
-    str = (char *)malloc(i + 1);
+    str = (char *)malloc(i + 2);
     i = 0;
-    while(math_str[index + 1] && math_str[index] >= '0' && math_str[index] <= '9')
-        str[i++] = math_str[index];
+    while(math_str[index] && math_str[index] >= '0' && math_str[index] <= '9')
+        str[i++] = math_str[index++];
     str[i] = '\0';
     return(ft_atoi(str));
 }
@@ -160,15 +161,22 @@ int     num_extract(char *math_str, int index)
 // a function that returns the index of the first character in the mathematical opperation to process
 int     brac_location(char *math_str)
 {
+    int hold;
+    int check = 0;
+    int index;
     int i = 0;
     while(math_str[i])
     {
-        // find correct brac location
-        //if(math_str[i] == '(' || math_str[i] == ')')
-        //    return(i)
+        hold = check;
+        if(math_str[i] == '(')
+            check++;
+        if(math_str[i] == ')')
+            check--;
+        if(check > hold)
+            index = i;
         i++;
     }
-    return(0);
+    return(index + 1);
 }
 
 // a function that returns the index of the first character in the mathematical opperation to process
@@ -198,17 +206,13 @@ int     div_mult_location(char *math_str)
 int     add_sub_location(char *math_str)
 {
     int i = 0;
-    while(math_str[i] != '+' || math_str[i] != '-')
-    {
+    while(math_str[i] && (math_str[i] != '+' && math_str[i] != '-'))
         i++;
-    }
     i--;
     while(math_str[i - 1] == ' ' || math_str[i - 1] == '\t')
         i--;
     while(i > 0 && math_str[i - 1] >= '0' && math_str[i - 1] <= '9')
-    {
         i--;
-    }
     return(i);
 }
 
