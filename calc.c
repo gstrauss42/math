@@ -73,6 +73,42 @@ int     symbol_check(char *math_str)
         return(0);
 }
 
+void    brac_chop(char **math_str)
+{
+    int i = 0;
+    int hold;
+    while((*math_str)[i])
+    {
+        if((*math_str)[i] == '(' && (*math_str)[i + 1] != '(')
+        {
+            hold = i;
+            i++;
+            while((*math_str)[i] && (*math_str)[i] >='0' && (*math_str)[i] <='9')
+                i++;
+            if((*math_str)[i] == ')')
+            {
+                while((*math_str)[i + 1])
+                {
+                    (*math_str)[i] = (*math_str)[i + 1];
+                    i++;
+                }
+                (*math_str)[i] = '\0';
+                while((*math_str)[hold + 1])
+                {
+                    (*math_str)[hold] = (*math_str)[hold + 1];
+                    hold++;
+                }
+                (*math_str)[hold] = '\0';
+                i = 0;
+            }
+            else
+                i++;
+        }
+        else
+            i++;
+    }
+}
+
 // processes and returns the next opperation in the order of operations
 void    opperation_order(char **math_str)
 {
@@ -91,6 +127,7 @@ void    opperation_order(char **math_str)
         printf("add_sub calc\n");
         opperate(add_sub_location(*math_str), math_str);
     }
+    brac_chop(math_str);
 }
 
 // the core maths calculations
