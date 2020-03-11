@@ -22,13 +22,32 @@ int     calc(char *math_str)
 // processes and returns the next opperation in the order of operations
 void    opperation_order(char **math_str)
 {
+    int i;
     if(bracket_check(*math_str))
-        opperate(brac_location(*math_str), math_str);
+        opperate(brac_bodmas(*math_str, brac_location(*math_str)), math_str);
     else if(div_mult_check(*math_str))
         opperate(div_mult_location(*math_str), math_str);
     else if(add_sub_check(*math_str))
         opperate(add_sub_location(*math_str), math_str);
     brac_chop(math_str);
+}
+
+int     brac_bodmas(char *math_str, int index)
+{
+    int i = index;
+    while(math_str[index])
+    {
+        if(math_str[index] == ')')
+            return(i);
+        if(math_str[index] == '*' || math_str[index] == '/')
+        {
+            while(math_str[index - 1] >= '0' && math_str[index - 1] <= '9')
+                index--;
+            return(index);
+        }
+        index++;
+    }
+    return(i);
 }
 
 // the core maths calculations

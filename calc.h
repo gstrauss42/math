@@ -18,5 +18,6 @@ int     num_extract(char *math_str, int index);
 int     calc(char *math_str);
 int     sanitize(char **math_str);
 void    brac_chop(char **math_str);
+int     brac_bodmas(char *math_str, int index);
 
 #endif
