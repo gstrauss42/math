@@ -1,7 +1,6 @@
 // calc_2
 // adding your own operations is easy, simply update the inclusion list in char_check(), add the function to perform_calculation() and add the symbol to the symbols[] variable in opperate in the order you want it performed in
 
-// main for testing
 char        *brack_chop(char *input, int start);
 char        *clean(char *input);
 char        *calc_2(char *input);
