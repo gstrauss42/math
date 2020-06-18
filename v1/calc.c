@@ -14,7 +14,6 @@ int     calc(char *math_str)
     while(symbol_check(math_str) == 1)
     {
         opperation_order(&math_str);
-        printf("%s\n", math_str);
     }
     return(ft_atoi(math_str));
 }

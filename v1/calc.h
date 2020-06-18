@@ -2,6 +2,7 @@
 # define CALC_H
 
 #include <stdlib.h>
+#include <stdio.h>
 
 int		ft_atoi(const char *str);
 int     symbol_check(char *math_str);
